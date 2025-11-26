@@ -34,24 +34,24 @@ cli.command("eval")
     found++;
     const test = await import(testFile);
     const json = test.json;
-    const basename = path.basename(testFile);
-    console.log(`Running ${basename}...`);
+    const name = evalName(testFile);
+    process.stdout.write(`Running ${name}...`);
     try {
       const response = await client.chat.completions.create({
         model: modelName,
         ...json,
       });
       test.test(response);
-      console.log(`✅ ${basename} passed`);
+      process.stdout.write(" ✅ passed\n");
     } catch(e) {
       failures.add(testFile);
-      console.log(`❌ ${basename} failed`);
       console.error(e);
+      console.error(`❌ ${name} failed`);
     }
   }
   const passed = found - failures.size
   if(passed === found) {
-    console.log("All evals passed!");
+    console.log("\n✅ All evals passed!");
     process.exit(0);
   }
 
@@ -59,11 +59,13 @@ cli.command("eval")
   console.log(`
 ${passed}/${found} evals passed. Failures:
 
-- ${Array.from(failures).map(failure => {
-  return `${path.basename(path.dirname(failure))}/${path.basename(failure)}`;
-}).join("\n- ")}
-  `.trim());
+- ${Array.from(failures).map(evalName).join("\n- ")}
+`.trim());
 });
+
+function evalName(file: string) {
+  return `${path.basename(path.dirname(file))}/${path.basename(file).replace(/.js$/, "")}`
+}
 
 async function* findTestFiles(dir: string): AsyncGenerator<string> {
   const entryNames = await fs.readdir(dir);
