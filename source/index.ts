@@ -28,7 +28,10 @@ cli.command("eval")
     apiKey: process.env[envVar],
     baseURL: baseUrl,
   });
+  let found = 0;
+  const failures = new Set<string>();
   for await(const testFile of findTestFiles(path.join(import.meta.dirname, "../evals"))) {
+    found++;
     const test = await import(testFile);
     const json = test.json;
     const basename = path.basename(testFile);
@@ -41,10 +44,25 @@ cli.command("eval")
       test.test(response);
       console.log(`✅ ${basename} passed`);
     } catch(e) {
+      failures.add(testFile);
       console.log(`❌ ${basename} failed`);
       console.error(e);
     }
   }
+  const passed = found - failures.size
+  if(passed === found) {
+    console.log("All evals passed!");
+    process.exit(0);
+  }
+
+  console.log("");
+  console.log(`
+${passed}/${found} evals passed. Failures:
+
+- ${Array.from(failures).map(failure => {
+  return `${path.basename(path.dirname(failure))}/${path.basename(failure)}`;
+}).join("\n- ")}
+  `.trim());
 });
 
 async function* findTestFiles(dir: string): AsyncGenerator<string> {
