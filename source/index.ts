@@ -18,8 +18,11 @@ cli.command("eval")
 .option(
   "--skip-reasoning", "Skip reasoning evals (set this for non-reasoning models)"
 )
-.argument("<model name>", "The model name to test")
-.action(async (modelName, { envVar, baseUrl }) => {
+.option(
+  "--only <eval path within synbad>", "Specific evals you want to run, e.g. evals/reasoning or evals/tools/claude-dash"
+)
+.requiredOption("--model <model name>", "The model name to test")
+.action(async ({ model, envVar, baseUrl, only }) => {
   if(!process.env[envVar]) {
     console.error(`No env var named ${envVar} exists for the current process`);
     process.exit(1);
@@ -30,7 +33,10 @@ cli.command("eval")
   });
   let found = 0;
   const failures = new Set<string>();
-  for await(const testFile of findTestFiles(path.join(import.meta.dirname, "../evals"))) {
+  const evalPath = only ? path.join(
+    import.meta.dirname, "..", only
+  ) : path.join(import.meta.dirname, "../evals");
+  for await(const testFile of findTestFiles(evalPath)) {
     found++;
     const test = await import(testFile);
     const json = test.json;
@@ -38,7 +44,7 @@ cli.command("eval")
     process.stdout.write(`Running ${name}...`);
     try {
       const response = await client.chat.completions.create({
-        model: modelName,
+        model,
         ...json,
       });
       test.test(response);
@@ -68,6 +74,17 @@ function evalName(file: string) {
 }
 
 async function* findTestFiles(dir: string): AsyncGenerator<string> {
+  try {
+    await fs.stat(dir);
+  } catch(e) {
+    const pathname = `${dir}.js`;
+    const stat = await fs.stat(pathname);
+    if(stat.isFile()) {
+      yield pathname;
+      return;
+    }
+    throw e;
+  }
   const entryNames = await fs.readdir(dir);
   const entries = await Promise.all(entryNames.map(async (entry) => {
     return {
