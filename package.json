@@ -4,14 +4,14 @@
   "description": "LLM inference provider evals",
   "main": "dist/source/index.js",
   "bin": {
-		"synbad": "dist/source/index.js"
+    "synbad": "dist/source/index.js"
   },
-	"preferGlobal": true,
+  "preferGlobal": true,
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-		"build": "tsc",
-		"prepublishOnly": "tsc"
+    "build": "tsc",
+    "prepublishOnly": "tsc"
   },
   "author": "@reissbaker",
   "license": "MIT",
