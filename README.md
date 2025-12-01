@@ -53,7 +53,7 @@ testing the `evals/reasoning/reasoning-parsing` test, for GLM-4.6 on Synthetic,
 and you want to run it 5 times since it isn't consistently failing:
 
 ```bash
-synbad.sh --env-var SYNTHETIC_API_KEY \
+./synbad.sh --env-var SYNTHETIC_API_KEY \
   --base-url "https://api.synthetic.new/openai/v1" \
   --only evals/reasoning/reasoning-parsing \
   --model "hf:zai-org/GLM-4.6" \
