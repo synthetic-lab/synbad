@@ -19,7 +19,7 @@ npm install
 All inference evals are stored in the `evals/` directory. They're written in
 TypeScript. You need to export two things from an eval:
 
-1. The JSON that reproduces the error, as the const `json`. It doesn't have to
+1. The JSON that reproduces the problem, as the const `json`. It doesn't have to
    reproduce it 100% of the time; if the bug appears even 5% of the time,
    that's fine.
 2. A `test` function that runs some asserts on the output of the response,
