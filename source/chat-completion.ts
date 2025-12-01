@@ -1,10 +1,15 @@
 import { t } from "structural";
 import OpenAI from "openai";
 
+export function getReasoning(msg: { reasoning_content?: string, reasoning?: string }) {
+  return msg.reasoning_content || msg.reasoning;
+}
+
 export type ChatResponse = OpenAI.ChatCompletion & {
   choices: Array<{
     message: {
       reasoning_content?: string,
+      reasoning?: string,
     },
   }>
 };
