@@ -10,7 +10,8 @@ We will fix them.
 
 ## Results
 
-We keep a running tally of provider+model results:
+We keep a running tally of provider+model results for GLM-4.6, Kimi K2
+Thinking, and MiniMax M2. Feel free to add more provider results!
 
 |Provider |Model           |Success Rate|
 |---------|----------------|------------|
