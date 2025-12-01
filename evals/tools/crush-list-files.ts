@@ -14,8 +14,8 @@ export function test(response: OpenAI.ChatCompletion) {
       const args = JSON.parse(fn.arguments);
       assert.or(
         () => assert.deepStrictEqual(args, {}),
-        () => assert.deepStrictEqual(args.path, "/home/reissbaker/Hack/scratch-scripts"),
-        () => assert.deepStrictEqual(args.path, "."),
+        () => assert.strictEqual(args.path, "/home/reissbaker/Hack/scratch-scripts"),
+        () => assert.strictEqual(args.path, "."),
       );
     },
     () => {
