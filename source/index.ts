@@ -56,7 +56,13 @@ cli.command("eval")
           model,
           ...json,
         });
-        test.test(response);
+        try {
+          test.test(response);
+        } catch(e) {
+          console.error("Response:");
+          console.error(JSON.stringify(response.choices[0], null, 2));
+          throw e;
+        }
       }
       process.stdout.write(" ✅ passed\n");
     } catch(e) {
