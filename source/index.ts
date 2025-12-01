@@ -22,8 +22,11 @@ cli.command("eval")
 .option(
   "--only <eval path within synbad>", "Specific evals you want to run, e.g. evals/reasoning or evals/tools/claude-dash"
 )
+.option(
+  "--count <num times>", "Number of times to run the eval. Any failures count as an overall failure",
+)
 .requiredOption("--model <model name>", "The model name to test")
-.action(async ({ model, envVar, baseUrl, only }) => {
+.action(async ({ model, envVar, baseUrl, only, count }) => {
   if(!process.env[envVar]) {
     console.error(`No env var named ${envVar} exists for the current process`);
     process.exit(1);
@@ -37,6 +40,7 @@ cli.command("eval")
   const evalPath = only ? path.join(
     import.meta.dirname, "..", only
   ) : path.join(import.meta.dirname, "../evals");
+  const maxRuns = count == null ? 1 : parseInt(count, 10);
   for await(const testFile of findTestFiles(evalPath)) {
     found++;
     const test = await import(testFile);
@@ -44,11 +48,16 @@ cli.command("eval")
     const name = evalName(testFile);
     process.stdout.write(`Running ${name}...`);
     try {
-      const response = await client.chat.completions.create({
-        model,
-        ...json,
-      });
-      test.test(response);
+      for(let i = 0; i < maxRuns; i++) {
+        if(maxRuns > 1) {
+          process.stdout.write(` ${i + 1}/${maxRuns}`);
+        }
+        const response = await client.chat.completions.create({
+          model,
+          ...json,
+        });
+        test.test(response);
+      }
       process.stdout.write(" ✅ passed\n");
     } catch(e) {
       failures.add(testFile);
