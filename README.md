@@ -57,16 +57,16 @@ For example, we can test reasoning parsing very simply (as we do in the
 
 ```typescript
 import * as assert from "../../source/asserts.ts";
-import { ChatResponse } from "../../source/chat-completion.ts";
+import { ChatResponse, getReasoning } from "../../source/chat-completion.ts";
 
 export function test(response: ChatResponse) {
-  const reasoning = response.choices[0].message.reasoning_content;
+  const reasoning = getReasoning(response.choices[0].message);
   assert.isNotNullish(reasoning);
 }
 
 export const json = {
   messages: [
-    { role: "user", content: "Why does 1+1=2?" },
+    { role: "user", content: "Why does 1+1=2?" }
   ],
 }
 ```
@@ -86,6 +86,29 @@ and you want to run it 5 times since it isn't consistently failing:
   --model "hf:zai-org/GLM-4.6" \
   --count 5
 ```
+
+### Handling reasoning parsing
+
+The OpenAI spec didn't originally include reasoning content parsing, since the
+original OpenAI models didn't reason. The open-source community added support
+for reasoning later, but there are two competing specs:
+
+1. Storing the reasoning content in `message.reasoning_content`, or
+2. Storing the reasoning content in `message.reasoning`.
+
+To make sure your evals work with a wider range of inference providers, use
+the `getReasoning` function when testing reasoning parsing like so:
+
+```typescript
+import { getReasoning } from "../../source/chat-completion.ts";
+
+// In your test:
+
+const reasoning = getReasoning(response.choices[0].message);
+```
+
+This ensures your test will use the correct reasoning content data regardless
+of which spec the underlying inference provider is using.
 
 ## Running Synbad
 

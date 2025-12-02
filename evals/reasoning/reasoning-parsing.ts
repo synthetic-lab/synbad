@@ -7,7 +7,7 @@ export function test(response: ChatResponse) {
 }
 
 export const json = {
-  "messages": [
-    {"role": "user", "content": "Why does 1+1=2?"}
+  messages: [
+    { role: "user", content: "Why does 1+1=2?" }
   ],
 }
