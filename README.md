@@ -35,7 +35,7 @@ Thinking, and MiniMax M2. Feel free to add more provider results!
 |Parasail |GLM-4.6         |:x: 71%|
 |Parasail |Kimi K2 Thinking|:x: 57%|
 
-## How do I file bugs?
+## How do I contribute inference bugs?
 
 If you already have some problematic JSON, head over to the
 [Contributing](#Contributing) section. If you don't, don't worry! Synbad makes
@@ -49,10 +49,11 @@ inference host you want to target. For example, to forward requests from
 synbad proxy -p 3000 -t https://api.synthetic.new/openai/v1
 ```
 
-Then, configure your coding agent to point to `http://localhost:3000` (or
-whichever port you selected). The Synbad Proxy will log all request bodies to
-`stdout`, so all you need to do is reproduce the bug by using your coding
-agent, and then copy the JSON it printed to `stdout`.
+Then, configure your coding agent — or whichever local tool you're using — to
+point to `http://localhost:3000` (or whichever port you selected). The Synbad
+Proxy will log all request bodies to `stdout`, so all you need to do is
+reproduce the bug by using your tool or coding agent, and then copy the JSON it
+printed to `stdout`.
 
 Now you have reproducible JSON to file a bug via Synbad!
 
@@ -97,9 +98,11 @@ The `asserts.ts` file re-exports all of the built-in NodeJS assertion
 functions, and also adds a few extra ones, e.g. `isNotNullish` which checks
 whether an object is `null` or `undefined`.
 
-To run your new eval, use the `synbad.sh` script in this repo. Assuming you're
-testing the `evals/reasoning/reasoning-parsing` test, for GLM-4.6 on Synthetic,
-and you want to run it 5 times since it isn't consistently failing:
+To run your new eval, use the `synbad.sh` script in this repo, which
+auto-recompiles everything (including your new test!) before running the evals.
+Assuming you're testing the `evals/reasoning/reasoning-parsing` test, for
+GLM-4.6 on Synthetic, and you want to run it 5 times since it isn't
+consistently failing:
 
 ```bash
 ./synbad.sh eval --env-var SYNTHETIC_API_KEY \
