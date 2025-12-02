@@ -40,7 +40,7 @@ cli.command("proxy")
       delete requestHeaders["transfer-encoding"];
 
       stderrLog(`[${timestamp}] ➡️  Forwarding to: ${target}`);
-      stderrLog(`[${timestamp}] 📦 Request data:`);
+      stderrLog(`[${timestamp}] 📦 Writing request data to stdout...`);
 
       // Choose the right module based on target protocol
       const httpModule = targetUrl.protocol === "https:" ? https : http;
