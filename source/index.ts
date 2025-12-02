@@ -105,7 +105,8 @@ cli.command("proxy")
       });
 
       req.on("end", () => {
-        console.log(`\n[${timestamp}] ✅ Request complete`);
+        process.stdout.write("\n");
+        console.log(`[${timestamp}] ✅ Request complete`);
         proxyReq.end();
       });
 
