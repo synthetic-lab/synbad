@@ -35,6 +35,27 @@ Thinking, and MiniMax M2. Feel free to add more provider results!
 |Parasail |GLM-4.6         |:x: 71%|
 |Parasail |Kimi K2 Thinking|:x: 57%|
 
+## How do I file bugs?
+
+If you already have some problematic JSON, head over to the
+[Contributing](#Contributing) section. If you don't, don't worry! Synbad makes
+it easy to capture the problematic JSON you're encountering.
+
+First, run the Synbad Proxy, specifying the local port you want to use and the
+inference host you want to target. For example, to forward requests from
+`localhost:3000` to Synthetic's API, you'd do:
+
+```bash
+synbad proxy -p 3000 -t https://api.synthetic.new/openai/v1
+```
+
+Then, configure your coding agent to point to `http://localhost:3000` (or
+whichever port you selected). The Synbad Proxy will log all request bodies to
+`stdout`, so all you need to do is reproduce the bug by using your coding
+agent, and then copy the JSON it printed to `stdout`.
+
+Now you have reproducible JSON to file a bug via Synbad!
+
 ## Contributing
 
 First, clone this repo from Github. Then `cd` into it and run:
@@ -64,6 +85,7 @@ export function test(response: ChatResponse) {
   assert.isNotNullish(reasoning);
 }
 
+// Insert your JSON. You can paste your results from the Synbad proxy here.
 export const json = {
   messages: [
     { role: "user", content: "Why does 1+1=2?" }
