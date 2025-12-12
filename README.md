@@ -22,18 +22,18 @@ Thinking, and MiniMax M2. Feel free to add more provider results!
 |Provider |Model           |Success Rate|
 |---------|----------------|------------|
 |Fireworks|GLM-4.6         |:white_check_mark: 100%|
-|Fireworks|Kimi K2 Thinking|:x: 86%|
+|Fireworks|Kimi K2 Thinking|:x: 88%|
 |Fireworks|MiniMax M2      |:x: 29%|
 
 |Provider |Model           |Success Rate|
 |---------|----------------|------------|
 |Together |GLM-4.6         |:white_check_mark: 100%|
-|Together |Kimi K2 Thinking|:x: 71%|
+|Together |Kimi K2 Thinking|:x: 75%|
 
 |Provider |Model           |Success Rate|
 |---------|----------------|------------|
 |Parasail |GLM-4.6         |:x: 71%|
-|Parasail |Kimi K2 Thinking|:x: 57%|
+|Parasail |Kimi K2 Thinking|:x: 62%|
 
 ## How do I contribute inference bugs?
 
