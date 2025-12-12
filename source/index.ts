@@ -127,11 +127,16 @@ cli.command("eval")
                 function: {}
               };
             }
+            lastIndex = toolDelta.index;
             if(toolDelta.id) toolBuffer.id = toolDelta.id;
             if(toolDelta.function) {
-              if(toolDelta.function.name) toolBuffer.function.name = toolDelta.function.name;
+              if(toolDelta.function.name) {
+                toolBuffer.function.name ||= "";
+                toolBuffer.function.name += toolDelta.function.name;
+              }
               if(toolDelta.function.arguments) {
-                toolBuffer.function.arguments = toolDelta.function.arguments;
+                toolBuffer.function.arguments ||= "";
+                toolBuffer.function.arguments += toolDelta.function.arguments;
               }
             }
           }
