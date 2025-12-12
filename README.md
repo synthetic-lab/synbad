@@ -30,23 +30,23 @@ Thinking, and MiniMax M2. Feel free to add more provider results!
 |Provider |Model           |Success Rate|
 |---------|----------------|------------|
 |Fireworks|GLM-4.6         |:white_check_mark: 100%|
-|Fireworks|Kimi K2 Thinking|:x: 75%|
+|Fireworks|Kimi K2 Thinking|:x: 50%|
 |Fireworks|MiniMax M2      |:x: 29%|
 
 |Provider |Model           |Success Rate|
 |---------|----------------|------------|
 |Together |GLM-4.6         |:white_check_mark: 100%|
-|Together |Kimi K2 Thinking|:x: 63%|
+|Together |Kimi K2 Thinking|:x: 50%|
 
 |Provider |Model           |Success Rate|
 |---------|----------------|------------|
-|Parasail |GLM-4.6         |:x: 71%|
+|Parasail |GLM-4.6         |:x: 75%|
 |Parasail |Kimi K2 Thinking|:x: 50%|
 
 Note for attempting reproductions: generally all tests are reproducible with
-`--count 1`, but for evaluating the response-in-reasoning eval, you generally
-will need a high count to reproduce the bug: `--count 40` typically is
-sufficient.
+`--count 1` and `--count 1 --stream`, but for evaluating the
+response-in-reasoning eval, you generally will need a high count to reproduce
+the bug: `--count 40` and `--count 40 --stream` typically is sufficient.
 
 All evals must pass both with and without Synbad's `--stream` parameter (which
 tests streaming APIs) to be considered a pass.
