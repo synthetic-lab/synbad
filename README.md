@@ -30,18 +30,18 @@ Thinking, and MiniMax M2. Feel free to add more provider results!
 |Provider |Model           |Success Rate|
 |---------|----------------|------------|
 |Fireworks|GLM-4.6         |:white_check_mark: 100%|
-|Fireworks|Kimi K2 Thinking|:x: 50%|
+|Fireworks|Kimi K2 Thinking|:x: 56%|
 |Fireworks|MiniMax M2      |:x: 29%|
 
 |Provider |Model           |Success Rate|
 |---------|----------------|------------|
 |Together |GLM-4.6         |:white_check_mark: 100%|
-|Together |Kimi K2 Thinking|:x: 50%|
+|Together |Kimi K2 Thinking|:x: 44%|
 
 |Provider |Model           |Success Rate|
 |---------|----------------|------------|
 |Parasail |GLM-4.6         |:x: 75%|
-|Parasail |Kimi K2 Thinking|:x: 50%|
+|Parasail |Kimi K2 Thinking|:x: 44%|
 
 Note for attempting reproductions: generally all tests are reproducible with
 `--count 1` and `--count 1 --stream`, but for evaluating the
