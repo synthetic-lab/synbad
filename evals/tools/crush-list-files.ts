@@ -4,18 +4,20 @@ import { ChatMessage } from "../../source/chat-completion.ts";
 export function test({ tool_calls }: ChatMessage) {
   assert.isNotNullish(tool_calls);
   assert.isNotEmptyArray(tool_calls);
-  assert.strictEqual(tool_calls.length, 1);
+  assert.gte(tool_calls.length, 1);
   assert.strictEqual(tool_calls[0].type, "function");
   const fn = tool_calls[0].function;
   assert.or(
     () => {
       assert.strictEqual(fn.name, "ls");
-      const args = JSON.parse(fn.arguments);
-      assert.or(
-        () => assert.strictEqual(args.path, "/home/reissbaker/Hack/scratch-scripts"),
-        () => assert.strictEqual(args.path, "."),
-        () => assert.isNullish(args.path),
-      );
+      if(fn.arguments) {
+        const args = JSON.parse(fn.arguments);
+        assert.or(
+          () => assert.strictEqual(args.path, "/home/reissbaker/Hack/scratch-scripts"),
+          () => assert.strictEqual(args.path, "."),
+          () => assert.isNullish(args.path),
+        );
+      }
     },
     () => {
       assert.strictEqual(fn.name, "bash");

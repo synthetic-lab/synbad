@@ -82,3 +82,19 @@ export function startsWith(a: string, prefix: string) {
     actual: a,
   });
 }
+
+export function gt(num: number, target: number) {
+  if(num > target) return true;
+  throw new assert.AssertionError({
+    message: `Expected ${num} > ${target}`,
+    actual: num,
+  });
+}
+
+export function gte(num: number, target: number) {
+  if(num >= target) return true;
+  throw new assert.AssertionError({
+    message: `Expected ${num} >= ${target}`,
+    actual: num,
+  });
+}
