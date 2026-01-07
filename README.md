@@ -23,9 +23,9 @@ Thinking, and MiniMax M2. Feel free to add more provider results!
 
 |Provider |Model           |Success Rate|
 |---------|----------------|------------|
-|Synthetic|GLM-4.7         |:white_check_mark: 100%|
-|Synthetic|Kimi K2 Thinking|:white_check_mark: 100%|
-|Synthetic|MiniMax M2      |:white_check_mark: 100%|
+|Synthetic.new|GLM-4.7         |:white_check_mark: 100%|
+|Synthetic.new|Kimi K2 Thinking|:white_check_mark: 100%|
+|Synthetic.new|MiniMax M2      |:white_check_mark: 100%|
 
 |Provider |Model           |Success Rate|
 |---------|----------------|------------|
