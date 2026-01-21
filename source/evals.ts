@@ -2,6 +2,24 @@ import fs from "fs/promises";
 import path from "path";
 import { ChatMessage } from "./chat-completion.ts";
 
+export type Eval = {
+  test: (response: ChatMessage) => any;
+  json: any;
+  name: string;
+};
+
+export async function getEvals(): Promise<Eval[]> {
+  const evals: Eval[] = [];
+  const evalsPath = path.join(import.meta.dirname, "..", "evals");
+
+  for await (const testFile of findTestFiles(evalsPath, false)) {
+    const { test, json } = await import(testFile);
+    evals.push({ test, json, name: evalName(testFile) });
+  }
+
+  return evals;
+}
+
 export function evalName(file: string) {
   return `${path.basename(path.dirname(file))}/${path.basename(file).replace(/.js$/, "")}`
 }
@@ -34,26 +52,5 @@ export async function* findTestFiles(dir: string, skipReasoning: boolean): Async
       yield* findTestFiles(entry.path, skipReasoning);
     }
   }
-}
-
-export type Eval = {
-  test: (response: ChatMessage) => any;
-  json: any;
-  name: string;
-};
-
-export async function getEvals(): Promise<Eval[]> {
-  const evals: Eval[] = [];
-  const evalsPath = path.join(import.meta.dirname, "..", "evals");
-
-  for await (const testFile of findTestFiles(evalsPath, false)) {
-    const testModule = await import(testFile);
-    const json = testModule.json;
-    const test = testModule.test;
-    const name = evalName(testFile);
-    evals.push({ test, json, name });
-  }
-
-  return evals;
 }
 
