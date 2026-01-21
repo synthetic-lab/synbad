@@ -1,6 +1,6 @@
 {
   "name": "@syntheticlab/synbad",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "LLM inference provider evals",
   "main": "dist/source/index.js",
   "bin": {
@@ -9,7 +9,7 @@
   "preferGlobal": true,
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest",
     "build": "tsc",
     "prepublishOnly": "tsc"
   },
@@ -23,6 +23,12 @@
     "package-lock.json",
     "tsconfig.json"
   ],
+  "exports": {
+    ".": {
+      "types": "./dist/source/exports.d.ts",
+      "import": "./dist/source/exports.js"
+    }
+  },
   "dependencies": {
     "@commander-js/extra-typings": "^14.0.0",
     "commander": "^14.0.2",
@@ -32,6 +38,7 @@
   },
   "devDependencies": {
     "@types/node": "^24.10.1",
-    "tsx": "^4.20.6"
+    "tsx": "^4.20.6",
+    "vitest": "^4.0.17"
   }
 }

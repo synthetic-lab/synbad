@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 import * as http from "http";
 import * as https from "https";
-import fs from "fs/promises";
 import path from "path";
 import { Command } from "@commander-js/extra-typings";
 import OpenAI from "openai";
 import { ChatMessage, getReasoning } from "./chat-completion.ts";
+import { findTestFiles, evalName } from "./evals.ts";
 
 const cli = new Command()
 .name("synbad")
@@ -317,40 +317,6 @@ cli.command("proxy")
     stderrLog("🤓 Terminal UI messages (such as this one) will be logged to stderr");
   });
 });
-
-function evalName(file: string) {
-  return `${path.basename(path.dirname(file))}/${path.basename(file).replace(/.js$/, "")}`
-}
-
-async function* findTestFiles(dir: string, skipReasoning: boolean): AsyncGenerator<string> {
-  try {
-    await fs.stat(dir);
-  } catch(e) {
-    const pathname = `${dir}.js`;
-    const stat = await fs.stat(pathname);
-    if(stat.isFile()) {
-      yield pathname;
-      return;
-    }
-    throw e;
-  }
-  const entryNames = await fs.readdir(dir);
-  const entries = await Promise.all(entryNames.map(async (entry) => {
-    return {
-      path: path.join(dir, entry),
-      stat: await fs.stat(path.join(dir, entry)),
-    };
-  }));
-  for(const entry of entries) {
-    if(entry.stat.isFile() && entry.path.endsWith(".js")) {
-      yield entry.path;
-    }
-    if(entry.stat.isDirectory()) {
-      if(skipReasoning && path.basename(entry.path) === "reasoning") continue;
-      yield* findTestFiles(entry.path, skipReasoning);
-    }
-  }
-}
 
 function stderrLog(item: string, ...items: string[]) {
   let formatted = item;
