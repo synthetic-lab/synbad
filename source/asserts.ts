@@ -98,3 +98,17 @@ export function gte(num: number, target: number) {
     actual: num,
   });
 }
+
+export function stringContains(str: string, expected: string) {
+  if(typeof str !== "string") {
+    throw new assert.AssertionError({
+      message: "Expected input to be of type string.",
+      actual: typeof str,
+    });
+  }
+  if(str.includes(expected)) return true;
+  throw new assert.AssertionError({
+    message: `Expected string to contain: "${expected}"`,
+    actual: str,
+  });
+}
