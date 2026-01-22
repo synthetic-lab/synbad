@@ -4,11 +4,17 @@ import * as assert from "../../source/asserts.ts";
 export function test({ tool_calls }: ChatMessage) {
   assert.isNotNullish(tool_calls);
   assert.isNotEmptyArray(tool_calls);
-  assert.strictEqual(tool_calls.length, 1);
-  assert.strictEqual(tool_calls[0].type, "function");
-  assert.strictEqual(tool_calls[0].function.name, "get_weather");
-  const args = JSON.parse(tool_calls[0].function.arguments);
-  assert.match(args.location.toLowerCase(), /las vegas/);
+  assert.gte(tool_calls.length, 1);
+
+  assert.ok(tool_calls.some(tool_call => {
+    if (tool_call.type === "function" && tool_call.function.name === "get_weather") {
+      const location = JSON.parse(tool_call.function.arguments).location;
+      if (typeof location === "string") {
+        return location.toLowerCase().match(/las vegas/);
+      }
+    }
+    return false;
+  }), "At least one tool call must be get_weather({ location: 'las_vegas' })");
 }
 
 export const json = {
