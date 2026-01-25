@@ -77,7 +77,7 @@ export const json = {
     },
     {
       role: "user",
-      content: "How about Las Vegas",
+      content: "How about the weather in Las Vegas",
     },
   ],
   "tools": [
