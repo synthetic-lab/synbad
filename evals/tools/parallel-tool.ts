@@ -9,7 +9,7 @@ export function test({ tool_calls }: ChatMessage) {
 
 export const json = {
   "messages": [
-    {"role": "user", "content": "What's the weather in Paris and London?"}
+    {"role": "user", "content": "What's the weather in Paris and London? Respond with both tool calls in a single request."}
   ],
   "tools": [
     {
