@@ -4,8 +4,11 @@ import * as https from "https";
 import path from "path";
 import { Command } from "@commander-js/extra-typings";
 import OpenAI from "openai";
-import { ChatMessage, getReasoning } from "./chat-completion.ts";
+import { ChatCompletionChunkWithReasoning, ChatCompletionMessage, getReasoning } from "./chat-completion.ts";
 import { findTestFiles, evalName } from "./evals.ts";
+import { ChatCompletionCreateParamsBase } from "openai/resources/chat/completions.mjs";
+import { ReasoningEffort } from "openai/resources";
+import { Stream } from "openai/streaming";
 
 const cli = new Command()
 .name("synbad")
@@ -57,112 +60,12 @@ cli.command("eval")
     const name = evalName(testFile);
     process.stdout.write(`Running ${name}...`);
 
-    async function respond(): Promise<ChatMessage> {
-      const reasoning = reasoningEffort == null ? {} : {
-        reasoning_effort: reasoningEffort,
-      };
-      if(!stream) {
-        const response = await client.chat.completions.create({
-          ...json,
-          ...reasoning,
-          stream: false,
-          model,
-        });
-        return response.choices[0].message as ChatMessage;
-      }
-
-      const msg: Partial<ChatMessage> = {};
-
-      const chunkStream = await (client.chat.completions.create({
-        ...json,
-        ...reasoning,
-        model,
-        stream: true,
-      }) as unknown as Promise<AsyncIterable<OpenAI.ChatCompletionChunk & {
-        choices: Array<{
-          delta: {
-            reasoning?: string,
-            reasoning_content?: string,
-          },
-        }>
-      }>>);
-
-      let lastIndex: number | null = null;
-      let toolBuffer: {
-        id?: string,
-        type: "function",
-        index: number,
-        function: {
-          name?: string,
-          arguments?: string,
-        },
-      } | null = null;
-      for await(const chunk of chunkStream) {
-        if(!chunk.choices) continue;
-        const choice = chunk.choices[0];
-        if(!choice) continue;
-        const content = choice.delta.content;
-        const tools = choice.delta.tool_calls;
-        const reasoning = getReasoning(choice.delta);
-        if(content) {
-          if(!msg.content) msg.content = "";
-          msg.content += content;
-        }
-        if(tools) {
-          for(const toolDelta of tools) {
-            if(lastIndex == null) lastIndex = toolDelta.index;
-            if(lastIndex !== toolDelta.index && toolBuffer != null) {
-              msg.tool_calls ||= [];
-              // @ts-ignore
-              msg.tool_calls.push(toolBuffer);
-              toolBuffer = {
-                index: toolDelta.index,
-                type: "function",
-                function: {},
-              };
-            }
-            if(!toolBuffer) {
-              toolBuffer = {
-                index: toolDelta.index,
-                type: "function",
-                function: {}
-              };
-            }
-            lastIndex = toolDelta.index;
-            if(toolDelta.id) toolBuffer.id = toolDelta.id;
-            if(toolDelta.function) {
-              if(toolDelta.function.name) {
-                toolBuffer.function.name ||= "";
-                toolBuffer.function.name += toolDelta.function.name;
-              }
-              if(toolDelta.function.arguments) {
-                toolBuffer.function.arguments ||= "";
-                toolBuffer.function.arguments += toolDelta.function.arguments;
-              }
-            }
-          }
-        }
-        if(reasoning) {
-          if(!msg.reasoning_content) msg.reasoning_content = "";
-          msg.reasoning_content += reasoning;
-        }
-      }
-
-      if(toolBuffer) {
-        msg.tool_calls ||= [];
-        // @ts-ignore
-        msg.tool_calls.push(toolBuffer);
-      }
-
-      return msg as ChatMessage;
-    }
-
     try {
       for(let i = 0; i < maxRuns; i++) {
         if(maxRuns > 1) {
           process.stdout.write(` ${i + 1}/${maxRuns}`);
         }
-        const response = await respond();
+        const response = await respond(client, model, json, stream ?? false, reasoningEffort as ReasoningEffort);
         try {
           test.test(response);
         } catch(e) {
@@ -317,6 +220,136 @@ cli.command("proxy")
     stderrLog("🤓 Terminal UI messages (such as this one) will be logged to stderr");
   });
 });
+
+type RespondResult<IsStreaming extends boolean> = {
+  chatCompletionMessage: ChatCompletionMessage,
+} & (
+  IsStreaming extends true
+    ? { chatCompletionChunks: ChatCompletionChunkWithReasoning[] }
+    : {}
+);
+
+async function respond(
+  client: OpenAI,
+  model: string,
+  json: ChatCompletionCreateParamsBase,
+  stream: false,
+  reasoningEffort: ReasoningEffort,
+): Promise<RespondResult<false>>;
+async function respond(
+  client: OpenAI,
+  model: string,
+  json: ChatCompletionCreateParamsBase,
+  stream: true,
+  reasoningEffort: ReasoningEffort,
+): Promise<RespondResult<true>>;
+async function respond(
+  client: OpenAI,
+  model: string,
+  json: ChatCompletionCreateParamsBase,
+  stream: boolean,
+  reasoningEffort: ReasoningEffort,
+): Promise<RespondResult<boolean>>
+async function respond(
+  client: OpenAI,
+  model: string,
+  json: ChatCompletionCreateParamsBase,
+  stream: boolean,
+  reasoningEffort: ReasoningEffort,
+): Promise<RespondResult<boolean>> {
+  if(!stream) {
+    const response = await client.chat.completions.create({
+      ...json,
+      reasoning_effort: reasoningEffort,
+      stream,
+      model,
+    });
+    return { chatCompletionMessage: response.choices[0].message as ChatCompletionMessage }
+  }
+
+  const msg: Partial<ChatCompletionMessage> = {};
+
+  const chunkStream = await (client.chat.completions.create({
+    ...json,
+    reasoning_effort: reasoningEffort,
+    model,
+    stream: true,
+  }) as unknown as Stream<ChatCompletionChunkWithReasoning>);
+
+  const chunks: ChatCompletionChunkWithReasoning[] = [];
+  let lastIndex: number | null = null;
+  let toolBuffer: {
+    id?: string,
+    type: "function",
+    index: number,
+    function: {
+      name?: string,
+      arguments?: string,
+    },
+  } | null = null;
+  for await(const chunk of chunkStream) {
+    chunks.push(chunk);
+    if(!chunk.choices) continue;
+    const choice = chunk.choices[0];
+    if(!choice) continue;
+    const content = choice.delta.content;
+    const tools = choice.delta.tool_calls;
+    const reasoning = getReasoning(choice.delta);
+    if(content) {
+      if(!msg.content) msg.content = "";
+      msg.content += content;
+    }
+    if(tools) {
+      for(const toolDelta of tools) {
+        if(lastIndex == null) lastIndex = toolDelta.index;
+        if(lastIndex !== toolDelta.index && toolBuffer != null) {
+          msg.tool_calls ||= [];
+          // @ts-ignore
+          msg.tool_calls.push(toolBuffer);
+          toolBuffer = {
+            index: toolDelta.index,
+            type: "function",
+            function: {},
+          };
+        }
+        if(!toolBuffer) {
+          toolBuffer = {
+            index: toolDelta.index,
+            type: "function",
+            function: {}
+          };
+        }
+        lastIndex = toolDelta.index;
+        if(toolDelta.id) toolBuffer.id = toolDelta.id;
+        if(toolDelta.function) {
+          if(toolDelta.function.name) {
+            toolBuffer.function.name ||= "";
+            toolBuffer.function.name += toolDelta.function.name;
+          }
+          if(toolDelta.function.arguments) {
+            toolBuffer.function.arguments ||= "";
+            toolBuffer.function.arguments += toolDelta.function.arguments;
+          }
+        }
+      }
+    }
+    if(reasoning) {
+      if(!msg.reasoning_content) msg.reasoning_content = "";
+      msg.reasoning_content += reasoning;
+    }
+  }
+
+  if(toolBuffer) {
+    msg.tool_calls ||= [];
+    // @ts-ignore
+    msg.tool_calls.push(toolBuffer);
+  }
+
+  return {
+    chatCompletionMessage: msg as ChatCompletionMessage,
+    chatCompletionChunks: chunks,
+  };
+}
 
 function stderrLog(item: string, ...items: string[]) {
   let formatted = item;

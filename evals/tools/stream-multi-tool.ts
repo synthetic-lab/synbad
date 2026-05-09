@@ -1,7 +1,7 @@
-import { ChatMessage } from "../../source/chat-completion.ts";
+import { EvalParams } from "../../source/evals.ts";
 import * as assert from "../../source/asserts.ts";
 
-export function test(message: ChatMessage) {
+export function test({ chatCompletionMessage: message }: EvalParams) {
   const { tool_calls } = message;
   assert.isNotNullish(tool_calls);
   assert.isNotEmptyArray(tool_calls);

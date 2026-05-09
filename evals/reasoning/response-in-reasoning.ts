@@ -1,7 +1,7 @@
+import { EvalParams } from "../../source/evals.ts";
 import * as assert from "../../source/asserts.ts";
-import { ChatMessage } from "../../source/chat-completion.ts";
 
-export function test(message: ChatMessage) {
+export function test({ chatCompletionMessage: message }: EvalParams) {
   const content = message.content;
   assert.or(
     () => assert.isNotNullish(content),

@@ -1,9 +1,14 @@
 import fs from "fs/promises";
 import path from "path";
-import { ChatMessage } from "./chat-completion.ts";
+import { ChatCompletionChunkWithReasoning, ChatCompletionMessage } from "./chat-completion.ts";
+
+export type EvalParams = {
+  chatCompletionMessage: ChatCompletionMessage,
+  chatCompletionChunks?: ChatCompletionChunkWithReasoning[],
+};
 
 export type Eval = {
-  test: (response: ChatMessage) => any;
+  test: ({ chatCompletionMessage }: EvalParams) => any;
   json: any;
   name: string;
 };
