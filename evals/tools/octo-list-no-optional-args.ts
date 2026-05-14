@@ -1,7 +1,8 @@
-import { EvalParams } from "../../source/evals.ts";
+import { EvalTestParams } from "../../source/evals.ts";
 import * as assert from "../../source/asserts.ts";
+import { ChatCompletionCreateParams } from "../../source/chat-completion.ts";
 
-export function test({ chatCompletionMessage: { tool_calls } }: EvalParams) {
+export function test({ chatCompletionMessage: { tool_calls } }: EvalTestParams) {
   assert.isNotNullish(tool_calls);
   assert.isNotEmptyArray(tool_calls);
   assert.strictEqual(tool_calls.length, 1);
@@ -15,7 +16,7 @@ export function test({ chatCompletionMessage: { tool_calls } }: EvalParams) {
   );
 }
 
-export const json = {
+export const json: ChatCompletionCreateParams = {
   "messages":[
     {
       "role":"system",

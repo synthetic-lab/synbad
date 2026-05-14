@@ -1,7 +1,8 @@
-import { EvalParams } from "../../source/evals.ts";
+import { EvalTestParams } from "../../source/evals.ts";
 import * as assert from "../../source/asserts.ts";
+import { ChatCompletionCreateParams } from "../../source/chat-completion.ts";
 
-export function test({ chatCompletionMessage: { content, tool_calls } }: EvalParams) {
+export function test({ chatCompletionMessage: { content, tool_calls } }: EvalTestParams) {
   assert.isNotNullish(tool_calls);
   assert.isNotEmptyArray(tool_calls);
   assert.strictEqual(tool_calls.length, 1);
@@ -13,7 +14,7 @@ export function test({ chatCompletionMessage: { content, tool_calls } }: EvalPar
   assert.doesNotMatch(content || "", /get_weather/);
 }
 
-export const json = {
+export const json: ChatCompletionCreateParams = {
   "messages": [
     {"role": "user", "content": "What's the weather in Paris?"}
   ],

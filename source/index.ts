@@ -5,7 +5,7 @@ import path from "path";
 import { Command } from "@commander-js/extra-typings";
 import OpenAI from "openai";
 import { ChatCompletionChunkWithReasoning, ChatCompletionMessage, getReasoning } from "./chat-completion.ts";
-import { findTestFiles, evalName } from "./evals.ts";
+import { getEvals } from "./evals.ts";
 import { ChatCompletionCreateParamsBase } from "openai/resources/chat/completions.mjs";
 import { ReasoningEffort } from "openai/resources";
 import { Stream } from "openai/streaming";
@@ -51,13 +51,11 @@ cli.command("eval")
   const failures = new Set<string>();
   const evalPath = only ? path.join(
     import.meta.dirname, "..", only
-  ) : path.join(import.meta.dirname, "..", "evals");
+  ) : undefined;
   const maxRuns = count == null ? 1 : parseInt(count, 10);
-  for await(const testFile of findTestFiles(evalPath, !!skipReasoning)) {
+  const evals = await getEvals(evalPath, skipReasoning ?? false);
+  for (const { test, json, name } of evals) {
     found++;
-    const test = await import(testFile);
-    const json = test.json;
-    const name = evalName(testFile);
     process.stdout.write(`Running ${name}...`);
 
     try {
@@ -65,9 +63,9 @@ cli.command("eval")
         if(maxRuns > 1) {
           process.stdout.write(` ${i + 1}/${maxRuns}`);
         }
-        const response = await respond(client, model, json, stream ?? false, reasoningEffort as ReasoningEffort);
+        const response = await respond(client, model, json as ChatCompletionCreateParamsBase, stream ?? false, reasoningEffort as ReasoningEffort);
         try {
-          test.test(response);
+          test(response);
         } catch(e) {
           console.error("Response:");
           console.error(JSON.stringify(response, null, 2));
@@ -76,7 +74,7 @@ cli.command("eval")
       }
       process.stdout.write(" ✅ passed\n");
     } catch(e) {
-      failures.add(testFile);
+      failures.add(name);
       console.error(e);
       console.error(`❌ ${name} failed`);
     }
@@ -91,7 +89,7 @@ cli.command("eval")
   console.log(`
 ${passed}/${found} evals passed. Failures:
 
-- ${Array.from(failures).map(evalName).join("\n- ")}
+- ${Array.from(failures).join("\n- ")}
 `.trim());
 });
 

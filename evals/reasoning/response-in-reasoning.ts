@@ -1,7 +1,8 @@
-import { EvalParams } from "../../source/evals.ts";
+import { EvalTestParams } from "../../source/evals.ts";
 import * as assert from "../../source/asserts.ts";
+import { ChatCompletionCreateParams } from "../../source/chat-completion.ts";
 
-export function test({ chatCompletionMessage: message }: EvalParams) {
+export function test({ chatCompletionMessage: message }: EvalTestParams) {
   const content = message.content;
   assert.or(
     () => assert.isNotNullish(content),
@@ -9,7 +10,7 @@ export function test({ chatCompletionMessage: message }: EvalParams) {
   );
 }
 
-export const json = {
+export const json: ChatCompletionCreateParams = {
   "messages": [
     {
       "role": "system",
