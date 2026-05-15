@@ -10,14 +10,13 @@ export type EvalTestParams = {
 
 
 export type EvalModule = {
-  test: ({ chatCompletionMessage }: EvalTestParams) => any;
+  test: (params: EvalTestParams) => any;
   json: ChatCompletionCreateParams;
 };
 
 export type Eval = EvalModule & {
   name: string;
 };
-
 
 export async function getEvals(evalsPath?: string, skipReasoning?: boolean): Promise<Eval[]> {
   const evals: Eval[] = [];

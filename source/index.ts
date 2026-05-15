@@ -49,10 +49,11 @@ cli.command("eval")
   });
   let found = 0;
   const failures = new Set<string>();
-  const evalPath = only ? path.join(
-    import.meta.dirname, "..", only
-  ) : undefined;
+  const evalPath = only
+    ? path.join(import.meta.dirname, "..", only)
+    : undefined;
   const maxRuns = count == null ? 1 : parseInt(count, 10);
+
   const evals = await getEvals(evalPath, skipReasoning ?? false);
   for (const { test, json, name } of evals) {
     found++;
@@ -227,6 +228,7 @@ type RespondResult<IsStreaming extends boolean> = {
     : {}
 );
 
+// TODO(billy): Allow evals to specify if they are streaming, non-streaming, or both.
 async function respond(
   client: OpenAI,
   model: string,
