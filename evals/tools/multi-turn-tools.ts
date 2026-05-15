@@ -1,7 +1,8 @@
-import { ChatMessage } from "../../source/chat-completion.ts";
+import { EvalTestParams } from "../../source/evals.ts";
 import * as assert from "../../source/asserts.ts";
+import { ChatCompletionCreateParams } from "../../source/chat-completion.ts";
 
-export function test({ tool_calls }: ChatMessage) {
+export function test({ chatCompletionMessage: { tool_calls } }: EvalTestParams) {
   assert.isNotNullish(tool_calls);
   assert.isNotEmptyArray(tool_calls);
   assert.gte(tool_calls.length, 1);
@@ -17,7 +18,7 @@ export function test({ tool_calls }: ChatMessage) {
   }), "At least one tool call must be get_weather({ location: 'las_vegas' })");
 }
 
-export const json = {
+export const json: ChatCompletionCreateParams = {
   "messages": [
     {
       role: "user",

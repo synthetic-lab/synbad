@@ -1,20 +1,30 @@
 import fs from "fs/promises";
 import path from "path";
-import { ChatMessage } from "./chat-completion.ts";
+import { ChatCompletionChunkWithReasoning, ChatCompletionCreateParams, ChatCompletionMessage } from "./chat-completion.ts";
+import { ChatCompletionCreateParamsBase } from "openai/resources/chat/completions.mjs";
 
-export type Eval = {
-  test: (response: ChatMessage) => any;
-  json: any;
+export type EvalTestParams = {
+  chatCompletionMessage: ChatCompletionMessage,
+  chatCompletionChunks?: ChatCompletionChunkWithReasoning[],
+};
+
+
+export type EvalModule = {
+  test: (params: EvalTestParams) => any;
+  json: ChatCompletionCreateParams;
+};
+
+export type Eval = EvalModule & {
   name: string;
 };
 
-export async function getEvals(): Promise<Eval[]> {
+export async function getEvals(evalsPath?: string, skipReasoning?: boolean): Promise<Eval[]> {
   const evals: Eval[] = [];
-  const evalsPath = path.join(import.meta.dirname, "..", "evals");
+  const resolvedPath = evalsPath ?? path.join(import.meta.dirname, "..", "evals");
 
-  for await (const testFile of findTestFiles(evalsPath, false)) {
-    const { test, json } = await import(testFile);
-    evals.push({ test, json, name: evalName(testFile) });
+  for await (const testFile of findTestFiles(resolvedPath, skipReasoning ?? false)) {
+    const module: EvalModule = await import(testFile);
+    evals.push({ ...module, name: evalName(testFile) });
   }
 
   return evals;

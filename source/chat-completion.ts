@@ -1,11 +1,12 @@
 import { t } from "structural";
 import OpenAI from "openai";
+import { ChatCompletionCreateParamsBase } from "openai/resources/chat/completions.mjs";
 
 export function getReasoning(msg: { reasoning_content?: string, reasoning?: string }) {
   return msg.reasoning_content || msg.reasoning;
 }
 
-export type ChatResponse = OpenAI.ChatCompletion & {
+export type ChatCompletionResponse = OpenAI.ChatCompletion & {
   choices: Array<{
     message: {
       reasoning_content?: string,
@@ -17,7 +18,26 @@ export type ChatResponse = OpenAI.ChatCompletion & {
   }>
 };
 
-export type ChatMessage = ChatResponse["choices"][number]["message"];
+export type ChatCompletionChunkWithReasoning = OpenAI.ChatCompletionChunk & {
+  choices: Array<{
+    // Reasoning strings are not part of the OpenAI spec.
+    delta: {
+      reasoning?: string,
+      reasoning_content?: string,
+    },
+  }>
+};
+
+export type ChatCompletionMessage = ChatCompletionResponse["choices"][number]["message"];
+
+export type ChatCompletionCreateParams = Omit<ChatCompletionCreateParamsBase, "model" | "messages"> & {
+  messages: Array<
+    | Exclude<ChatCompletionCreateParamsBase["messages"][number], { role: "assistant" }>
+    | (Extract<ChatCompletionCreateParamsBase["messages"][number], { role: "assistant" }> & {
+      reasoning_content?: string,
+    })
+  >;
+};
 
 const TextContentPart =  t.subtype({
   type: t.value("text"),

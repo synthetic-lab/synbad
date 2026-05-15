@@ -1,12 +1,13 @@
 import * as assert from "../../source/asserts.ts";
-import { ChatMessage, getReasoning } from "../../source/chat-completion.ts";
+import { EvalTestParams } from "../../source/evals.ts";
+import { ChatCompletionCreateParams, getReasoning } from "../../source/chat-completion.ts";
 
-export function test(message: ChatMessage) {
+export function test({ chatCompletionMessage: message }: EvalTestParams) {
   const reasoning = getReasoning(message);
   assert.isNotNullish(reasoning);
 }
 
-export const json = {
+export const json: ChatCompletionCreateParams = {
   messages: [
     { role: "user", content: "Why does 1+1=2?" }
   ],
