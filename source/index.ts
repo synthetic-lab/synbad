@@ -69,7 +69,7 @@ cli.command("eval")
           test(response);
         } catch(e) {
           console.error("Response:");
-          console.error(JSON.stringify(response, null, 2));
+          console.error(JSON.stringify(response.chatCompletionMessage, null, 2));
           throw e;
         }
       }
