@@ -43,6 +43,11 @@ add more provider results!
 |Parasail |GLM-4.7         |:x: 83%|
 |Parasail |Kimi K2 Thinking|:x: 75%|
 
+|Provider |Model           |Success Rate|
+|---------|----------------|------------|
+|Ollama Cloud |GLM-4.7         |:x: 88%|
+|Ollama Cloud |Minimax M2|:x: 62%|
+
 Note for attempting reproductions: generally all tests are reproducible with
 `--count 1` and `--count 1 --stream`, but for evaluating the
 response-in-reasoning eval, you generally will need a high count to reproduce
