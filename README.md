@@ -138,14 +138,14 @@ whether an object is `null` or `undefined`.
 To run your new eval, use the `synbad.sh` script in this repo, which
 auto-recompiles everything (including your new test!) before running the evals.
 Assuming you're testing the `evals/reasoning/reasoning-parsing` test, for
-GLM-4.6 on Synthetic, and you want to run it 5 times since it isn't
+GLM-4.7 on Synthetic, and you want to run it 5 times since it isn't
 consistently failing:
 
 ```bash
 ./synbad.sh eval --env-var SYNTHETIC_API_KEY \
   --base-url "https://api.synthetic.new/openai/v1" \
   --only evals/reasoning/reasoning-parsing \
-  --model "hf:zai-org/GLM-4.6" \
+  --model "hf:zai-org/GLM-4.7" \
   --count 5
 ```
 
@@ -180,10 +180,32 @@ First, install it:
 npm install -g @syntheticlab/synbad
 ```
 
-Then run:
+You have two modes, `proxy` and `eval`. The `proxy` mode is used to capture
+inference requests and responses, while the `eval` mode is used to run evals
+against a specific inference provider.
+
+When troubleshooting and asked to provide reproduction steps, you will typically want to run
+the `Proxy` mode first to capture the problematic JSON:
+
+```bash
+synbad proxy -p 8080 -t https://api.synthetic.new/anthropic
+```
+Then in another terminal point your coding agent or tool to `http://localhost:8080` and reproduce the
+issue. For example with claude code:
+```bash
+   export ANTHROPIC_BASE_URL="http://localhost:8080"
+   export ANTHROPIC_AUTH_TOKEN=${SYNTHETIC_API_KEY} 
+   export ANTHROPIC_DEFAULT_OPUS_MODEL=hf:moonshotai/Kimi-K2.5
+   export ANTHROPIC_DEFAULT_SONNET_MODEL=hf:zai-org/GLM-4.7 
+   expot ANTHROPIC_DEFAULT_HAIKU_MODEL=hf:zai-org/GLM-4.7 
+   export CLAUDE_CODE_SUBAGENT_MODEL=hf:zai-org/GLM-4.7 
+   export CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
+   claude
+```
+
 
 ```bash
 synbad eval --env-var SYNTHETIC_API_KEY \
   --base-url "https://api.synthetic.new/openai/v1" \
-  --model "hf:zai-org/GLM-4.6"
+  --model "hf:zai-org/GLM-4.7"
 ```
