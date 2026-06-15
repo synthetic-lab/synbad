@@ -98,6 +98,7 @@ cli.command("proxy")
 .requiredOption("-p, --port <number>", "Port to listen on")
 .requiredOption("-t, --target <url>", "Target URL to proxy to")
 .option("--pretty", "Pretty-print the JSON")
+.option("--log-responses", "Log responses in addition to requests")
 .action(async (options) => {
   const port = parseInt(options.port, 10);
   const targetUrl = new URL(options.target);
@@ -158,6 +159,7 @@ cli.command("proxy")
           // Stream response data immediately to client
           proxyRes.on("data", (chunk) => {
             res.write(chunk);
+            if(options.logResponses) process.stdout.write(chunk);
           });
 
           proxyRes.on("end", () => {
@@ -195,7 +197,7 @@ cli.command("proxy")
       req.on("end", () => {
         if(options.pretty) console.log(JSON.stringify(JSON.parse(buffer.join()), null, 2));
         else process.stdout.write("\n");
-        console.log(`[${timestamp}] ✅ Request complete`);
+        stderrLog("✅ Request complete");
         proxyReq.end();
       });
 
