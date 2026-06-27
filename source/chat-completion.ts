@@ -37,6 +37,7 @@ export type ChatCompletionCreateParams = Omit<ChatCompletionCreateParamsBase, "m
       reasoning_content?: string,
     })
   >;
+  chat_template_kwargs?: Record<string, JSONValue>,
 };
 
 const TextContentPart =  t.subtype({
@@ -169,3 +170,11 @@ export const ChatCompletion = t.subtype({
   reasoning_effort: t.optional(ReasoningSchema),
   enable_thinking: t.optional(t.bool),
 });
+
+type JSONValue =
+  | string
+  | number
+  | boolean
+  | null
+  | JSONValue[]
+  | { [key: string]: JSONValue }

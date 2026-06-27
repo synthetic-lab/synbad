@@ -1,7 +1,6 @@
 import fs from "fs/promises";
 import path from "path";
 import { ChatCompletionChunkWithReasoning, ChatCompletionCreateParams, ChatCompletionMessage } from "./chat-completion.ts";
-import { ChatCompletionCreateParamsBase } from "openai/resources/chat/completions.mjs";
 
 export type EvalTestParams = {
   chatCompletionMessage: ChatCompletionMessage,
