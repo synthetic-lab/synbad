@@ -10,8 +10,8 @@
   "type": "module",
   "scripts": {
     "test": "vitest",
-    "build": "rm -rf dist && tsc",
-    "prepublishOnly": "rm -rf dist/ && tsc"
+    "build": "rm -rf dist && tsc && cp evals/image/*.png dist/evals/image/",
+    "prepublishOnly": "rm -rf dist/ && tsc && cp evals/image/*.png dist/evals/image/"
   },
   "author": "@reissbaker",
   "license": "MIT",

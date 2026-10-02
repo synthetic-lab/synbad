@@ -18,11 +18,24 @@ export type Eval = EvalModule & {
   name: string;
 };
 
-export async function getEvals(evalsPath?: string, skipReasoning?: boolean): Promise<Eval[]> {
+// Directories inside evals/ that are gated behind a --modalities flag, keyed by
+// the modality name (e.g. evals/image requires --modalities image).
+const MODALITY_DIRS = new Set(["image"]);
+
+export type GetEvalsOptions = {
+  modalities?: string[],
+};
+
+export async function getEvals(
+  evalsPath?: string,
+  skipReasoning?: boolean,
+  options: GetEvalsOptions = {},
+): Promise<Eval[]> {
   const evals: Eval[] = [];
   const resolvedPath = evalsPath ?? path.join(import.meta.dirname, "..", "evals");
+  const modalities = options.modalities ?? [];
 
-  for await (const testFile of findTestFiles(resolvedPath, skipReasoning ?? false)) {
+  for await (const testFile of findTestFiles(resolvedPath, skipReasoning ?? false, modalities)) {
     const module: EvalModule = await import(testFile);
     evals.push({ ...module, name: evalName(testFile) });
   }
@@ -34,7 +47,7 @@ export function evalName(file: string) {
   return `${path.basename(path.dirname(file))}/${path.basename(file).replace(/.js$/, "")}`
 }
 
-export async function* findTestFiles(dir: string, skipReasoning: boolean): AsyncGenerator<string> {
+export async function* findTestFiles(dir: string, skipReasoning: boolean, modalities: string[]): AsyncGenerator<string> {
   try {
     await fs.stat(dir);
   } catch(e) {
@@ -58,8 +71,10 @@ export async function* findTestFiles(dir: string, skipReasoning: boolean): Async
       yield entry.path;
     }
     if(entry.stat.isDirectory()) {
-      if(skipReasoning && path.basename(entry.path) === "reasoning") continue;
-      yield* findTestFiles(entry.path, skipReasoning);
+      const dirname = path.basename(entry.path);
+      if(skipReasoning && dirname === "reasoning") continue;
+      if(MODALITY_DIRS.has(dirname) && !modalities.includes(dirname)) continue;
+      yield* findTestFiles(entry.path, skipReasoning, modalities);
     }
   }
 }
