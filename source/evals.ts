@@ -3,6 +3,11 @@ import path from "path";
 import { ChatCompletionChunkWithReasoning, ChatCompletionCreateParams, ChatCompletionMessage } from "./chat-completion.ts";
 import { ChatCompletionCreateParamsBase } from "openai/resources/chat/completions.mjs";
 
+// Directory containing binary assets (e.g. images) available to evals at
+// runtime. The build copies it into dist/, so this resolves correctly both
+// when running from source (via tsx/vitest) and from the compiled output.
+export const STATIC_DIR = path.join(import.meta.dirname, "..", "static");
+
 export type EvalTestParams = {
   chatCompletionMessage: ChatCompletionMessage,
   chatCompletionChunks?: ChatCompletionChunkWithReasoning[],
