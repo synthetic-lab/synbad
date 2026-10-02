@@ -26,10 +26,13 @@ cli.command("eval")
   "--skip-reasoning", "Skip reasoning evals (set this for non-reasoning models)"
 )
 .option(
+  "--modalities <list>", "Comma-separated list of additional modalities to test, e.g. --modalities image"
+)
+.option(
   "--reasoning-effort <level>", "Set the reasoning effort to high, medium, or low"
 )
 .option(
-  "--only <eval path within synbad>", "Specific evals you want to run, e.g. evals/reasoning or evals/tools/claude-dash"
+  "--only <eval path within synbad>", "Specific evals you want to run, e.g. evals/reasoning, evals/tools/claude-dash, or evals/modalities/image"
 )
 .option(
   "--count <num times>", "Number of times to run the eval. Any failures count as an overall failure",
@@ -38,7 +41,7 @@ cli.command("eval")
   "--stream", "Test streaming API calls",
 )
 .requiredOption("--model <model name>", "The model name to test")
-.action(async ({ model, envVar, baseUrl, only, count, skipReasoning, reasoningEffort, stream }) => {
+.action(async ({ model, envVar, baseUrl, only, count, skipReasoning, reasoningEffort, stream, modalities }) => {
   if(!process.env[envVar]) {
     console.error(`No env var named ${envVar} exists for the current process`);
     process.exit(1);
@@ -53,8 +56,12 @@ cli.command("eval")
     ? path.join(import.meta.dirname, "..", only)
     : undefined;
   const maxRuns = count == null ? 1 : parseInt(count, 10);
+  const modalityList = (modalities ?? "")
+    .split(",")
+    .map((modality) => modality.trim().toLowerCase())
+    .filter((modality) => modality !== "");
 
-  const evals = await getEvals(evalPath, skipReasoning ?? false);
+  const evals = await getEvals(evalPath, skipReasoning ?? false, { modalities: modalityList });
   for (const { test, json, name } of evals) {
     found++;
     process.stdout.write(`Running ${name}...`);
