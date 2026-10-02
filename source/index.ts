@@ -32,7 +32,7 @@ cli.command("eval")
   "--reasoning-effort <level>", "Set the reasoning effort to high, medium, or low"
 )
 .option(
-  "--only <eval path within synbad>", "Specific evals you want to run, e.g. evals/reasoning or evals/tools/claude-dash"
+  "--only <eval path within synbad>", "Specific evals you want to run, e.g. evals/reasoning, evals/tools/claude-dash, or evals/modalities/image"
 )
 .option(
   "--count <num times>", "Number of times to run the eval. Any failures count as an overall failure",

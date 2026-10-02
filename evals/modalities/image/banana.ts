@@ -1,8 +1,8 @@
 import fs from "fs";
 import path from "path";
-import * as assert from "../../source/asserts.ts";
-import { EvalTestParams } from "../../source/evals.ts";
-import { ChatCompletionCreateParams } from "../../source/chat-completion.ts";
+import * as assert from "../../../source/asserts.ts";
+import { EvalTestParams } from "../../../source/evals.ts";
+import { ChatCompletionCreateParams } from "../../../source/chat-completion.ts";
 
 // Public domain image (by Titus Tscharntke), from:
 // https://commons.wikimedia.org/wiki/File:Banana_fruit_on_white_background.jpg

@@ -18,8 +18,9 @@ export type Eval = EvalModule & {
   name: string;
 };
 
-// Directories inside evals/ that are gated behind a --modalities flag, keyed by
-// the modality name (e.g. evals/image requires --modalities image).
+// Directories under evals/modalities/ that are gated behind a --modalities
+// flag, keyed by the modality name (e.g. evals/modalities/image requires
+// --modalities image).
 const MODALITY_DIRS = new Set(["image"]);
 
 export type GetEvalsOptions = {
