@@ -27,6 +27,7 @@ const MODALITY_DIRS = new Set(["image"]);
 
 export type GetEvalsOptions = {
   modalities?: string[],
+  nonStandard?: boolean,
 };
 
 export async function getEvals(
@@ -38,7 +39,7 @@ export async function getEvals(
   const resolvedPath = evalsPath ?? path.join(import.meta.dirname, "..", "evals");
   const modalities = options.modalities ?? [];
 
-  for await (const testFile of findTestFiles(resolvedPath, skipReasoning ?? false, modalities)) {
+  for await (const testFile of findTestFiles(resolvedPath, skipReasoning ?? false, modalities, options.nonStandard ?? false)) {
     const module: EvalModule = await import(testFile);
     evals.push({ ...module, name: evalName(testFile) });
   }
@@ -50,7 +51,15 @@ export function evalName(file: string) {
   return `${path.basename(path.dirname(file))}/${path.basename(file).replace(/.js$/, "")}`
 }
 
-export async function* findTestFiles(dir: string, skipReasoning: boolean, modalities: string[]): AsyncGenerator<string> {
+export async function* findTestFiles(
+  dir: string,
+  skipReasoning: boolean,
+  modalities: string[],
+  nonStandard = false,
+): AsyncGenerator<string> {
+  // Check the requested path too, so --only cannot accidentally enable optional API features.
+  if(!nonStandard && path.resolve(dir).split(path.sep).includes("non-standard")) return;
+
   try {
     await fs.stat(dir);
   } catch(e) {
@@ -77,7 +86,7 @@ export async function* findTestFiles(dir: string, skipReasoning: boolean, modali
       const dirname = path.basename(entry.path);
       if(skipReasoning && dirname === "reasoning") continue;
       if(MODALITY_DIRS.has(dirname) && !modalities.includes(dirname)) continue;
-      yield* findTestFiles(entry.path, skipReasoning, modalities);
+      yield* findTestFiles(entry.path, skipReasoning, modalities, nonStandard);
     }
   }
 }

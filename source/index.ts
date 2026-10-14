@@ -29,6 +29,9 @@ cli.command("eval")
   "--modalities <list>", "Comma-separated list of additional modalities to test, e.g. --modalities image"
 )
 .option(
+  "--non-standard", "Include optional evals for non-standard API features, such as assistant prefilling"
+)
+.option(
   "--reasoning-effort <level>", "Set the reasoning effort to high, medium, or low"
 )
 .option(
@@ -41,7 +44,7 @@ cli.command("eval")
   "--stream", "Test streaming API calls",
 )
 .requiredOption("--model <model name>", "The model name to test")
-.action(async ({ model, envVar, baseUrl, only, count, skipReasoning, reasoningEffort, stream, modalities }) => {
+.action(async ({ model, envVar, baseUrl, only, count, skipReasoning, reasoningEffort, stream, modalities, nonStandard }) => {
   if(!process.env[envVar]) {
     console.error(`No env var named ${envVar} exists for the current process`);
     process.exit(1);
@@ -61,7 +64,11 @@ cli.command("eval")
     .map((modality) => modality.trim().toLowerCase())
     .filter((modality) => modality !== "");
 
-  const evals = await getEvals(evalPath, skipReasoning ?? false, { modalities: modalityList });
+  const evals = await getEvals(evalPath, skipReasoning ?? false, { modalities: modalityList, nonStandard });
+  if(evals.length === 0) {
+    console.error("No evals selected. Check --only and optional flags (--non-standard, --modalities).");
+    process.exit(1);
+  }
   for (const { test, json, name } of evals) {
     found++;
     process.stdout.write(`Running ${name}...`);

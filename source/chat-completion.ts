@@ -31,6 +31,7 @@ export type ChatCompletionChunkWithReasoning = OpenAI.ChatCompletionChunk & {
 export type ChatCompletionMessage = ChatCompletionResponse["choices"][number]["message"];
 
 export type ChatCompletionCreateParams = Omit<ChatCompletionCreateParamsBase, "model" | "messages"> & {
+  continue_final_message?: boolean,
   messages: Array<
     | Exclude<ChatCompletionCreateParamsBase["messages"][number], { role: "assistant" }>
     | (Extract<ChatCompletionCreateParamsBase["messages"][number], { role: "assistant" }> & {
@@ -120,6 +121,7 @@ const ToolDef = t.subtype({
 
 export const ChatCompletion = t.subtype({
   messages: t.array(ChatCompletionMessage),
+  continue_final_message: t.optional(t.bool),
   user: t.optional(t.str),
 
   tools: t.optional(t.array(ToolDef)),
